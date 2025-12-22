@@ -15,7 +15,6 @@ int main(void)
 	char *freeCommand = NULL;
 	int fork0;
 	char *argm[2];
-	int len;
 	int ifwrong;
 	size_t n = 0;
 ssize_t nread;
