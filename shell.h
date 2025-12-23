@@ -12,6 +12,6 @@ extern char **environ;
 
 /* Prototypes */
 void tokenize(char *buffer, char **argv);
-void execute_command(char **argv);
+int execute_command(char **argv);
 
 #endif/*SHELL_H*/

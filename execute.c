@@ -24,12 +24,16 @@ void execute_command(char **argv)
 		if (execve(argv[0], argv, environ) == -1)
 		{
 			fprintf(stderr, "No such file or directory\n");
-			exit(EXIT_FAILURE);
+			exit(127);
 		}
 	}
 	else
 	{
 		/* Parent Process */
 		wait(&status);
+		
+		if (WIFEXITED(status))
+			return (WEXITSTATUS(status));
 	}
+return (0);
 }

@@ -10,6 +10,7 @@ int main(void)
 	size_t n = 0;
 	ssize_t nread;
 	char *argv[100];
+	int last_status = 0;
 
 	while (1)
 	{
@@ -21,7 +22,7 @@ int main(void)
 		if (nread == -1)
 		{
 			free(buffer);
-			exit(EXIT_SUCCESS);
+			exit(last_status);
 		}
 
 		tokenize(buffer, argv);
@@ -31,9 +32,9 @@ int main(void)
 		if (strcmp(argv[0], "exit") == 0)
 		{
 			free(buffer);
-			exit(EXIT_SUCCESS);
+			exit(last_status);
 		}
-		execute_command(argv);
+		last_status = execute_command(argv);
 
 	}
 
