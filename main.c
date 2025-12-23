@@ -12,7 +12,6 @@ int main(void)
 	int Res = isatty(0);
 	char *buffer = NULL;
 	char *command = NULL;
-	char *freeCommand = NULL;
 	int fork0;
 	char *argm[2];
 	int ifwrong;
@@ -30,7 +29,6 @@ ssize_t nread;
 			free(buffer);
 			exit(0);
 		}
-		freeCommand = command;
 		command = strtok(buffer, " \n\t");
 		if (command == NULL)
 			continue;
@@ -52,7 +50,8 @@ ssize_t nread;
 		else
 		fprintf(stderr, "No such file or directory\n");
 
-		free(freeCommand);
+		free(buffer);
+		buffer = NULL;
 
 
 	}
