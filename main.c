@@ -26,6 +26,13 @@ int main(void)
 
 		tokenize(buffer, argv);
 
+		if (argv[0] == NULL)
+			continue;
+		if (strcmp(argv[0], "exit") == 0)
+		{
+			free(buffer);
+			exit(EXIT_SUCCESS);
+		}
 		execute_command(argv);
 
 	}
