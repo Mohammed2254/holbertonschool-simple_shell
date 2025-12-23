@@ -1,59 +1,35 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include "shell.h"
 
-extern char **environ;
-
+/**
+* main - Simple Shell main loop
+* Return: 0 on success
+*/
 int main(void)
 {
-	int Res = isatty(0);
 	char *buffer = NULL;
-	char *command = NULL;
-	int fork0;
-	char *argm[2];
-	int ifwrong;
 	size_t n = 0;
-ssize_t nread;
+	ssize_t nread;
+	char *argv[100];
 
 	while (1)
 	{
-		if (Res == 1)
-			printf("#cisfun$");
+		if (isatty(STDIN_FILENO))
+			printf("#cisfun$ ");
 
 		nread = getline(&buffer, &n, stdin);
+
 		if (nread == -1)
 		{
 			free(buffer);
-			exit(0);
+			exit(EXIT_SUCCESS);
 		}
-		command = strtok(buffer, " \n\t");
-		if (command == NULL)
-			continue;
 
-		fork0 = fork();
+		tokenize(buffer, argv);
 
-
-		argm[0] = command;
-		argm[1] = NULL;
-
-		if (fork0 == 0)
-		{
-		ifwrong = execve (command,argm,environ);
-			if (ifwrong == -1)
-				exit(1);
-		}
-		if (fork0 > 0)
-			wait(NULL);
-		else
-		fprintf(stderr, "No such file or directory\n");
-
-		free(buffer);
-		buffer = NULL;
-
+		execute_command(argv);
 
 	}
-    return (0);
+
+free(buffer);
+return (0);
 }
