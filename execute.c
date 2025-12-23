@@ -10,7 +10,7 @@ int execute_command(char **argv)
 	int status;
 
 	if (argv[0] == NULL)
-		return;
+		return (0);
 
 	child_pid = fork();
 
