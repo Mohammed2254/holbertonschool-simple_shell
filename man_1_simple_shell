@@ -1,0 +1,10 @@
+.TH hsh 1
+.SH NAME
+hsh \- simple shell
+.SH SYNOPSIS
+hsh
+.SH DESCRIPTION
+A simple UNIX command interpreter written in C.
+.SH AUTHORS
+Alenzi Fawaz Fahad
+Mohammed Abdullah Alabdali
