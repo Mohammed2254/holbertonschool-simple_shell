@@ -4,7 +4,7 @@
 * execute_command - Forks and executes a command
 * @argv: The array of command and arguments
 */
-void execute_command(char **argv)
+int execute_command(char **argv)
 {
 	pid_t child_pid;
 	int status;
