@@ -1,28 +1,28 @@
 #include "shell.h"
 
-char *trim_spaces(char *str)
+char *trim_spaces(char *s)
 {
     char *end;
 
-    while (*str == ' ' || *str == '\t')
-        str++;
+    while (*s == ' ' || *s == '\t')
+        s++;
 
-    if (*str == '\0')
-        return (str);
+    if (*s == '\0')
+        return (s);
 
-    end = str + strlen(str) - 1;
-    while (end > str && (*end == ' ' || *end == '\t'))
+    end = s + strlen(s) - 1;
+    while (end > s && (*end == ' ' || *end == '\t'))
         end--;
 
     *(end + 1) = '\0';
-    return (str);
+    return (s);
 }
 
 char *get_path(void)
 {
     int i = 0;
 
-    while (environ[i])
+    while (environ && environ[i])
     {
         if (strncmp(environ[i], "PATH=", 5) == 0)
             return (environ[i] + 5);
@@ -33,36 +33,41 @@ char *get_path(void)
 
 char *find_command(char *cmd)
 {
-    char *path, *path_copy, *dir, *full_path;
+    char *path, *copy, *dir, *full;
+    size_t len;
 
     path = get_path();
     if (!path || path[0] == '\0')
         return (NULL);
 
-    path_copy = strdup(path);
-    if (!path_copy)
+    copy = strdup(path);
+    if (!copy)
         return (NULL);
 
-    dir = strtok(path_copy, ":");
+    dir = strtok(copy, ":");
     while (dir)
     {
-        full_path = malloc(strlen(dir) + strlen(cmd) + 2);
-        if (!full_path)
-            return (NULL);
-
-        sprintf(full_path, "%s/%s", dir, cmd);
-
-        if (access(full_path, X_OK) == 0)
+        len = strlen(dir) + strlen(cmd) + 2;
+        full = malloc(len);
+        if (!full)
         {
-            free(path_copy);
-            return (full_path);
+            free(copy);
+            return (NULL);
         }
 
-        free(full_path);
+        sprintf(full, "%s/%s", dir, cmd);
+
+        if (access(full, X_OK) == 0)
+        {
+            free(copy);
+            return (full);
+        }
+
+        free(full);
         dir = strtok(NULL, ":");
     }
 
-    free(path_copy);
+    free(copy);
     return (NULL);
 }
 
@@ -70,7 +75,8 @@ int execute_command(char **argv)
 {
     pid_t pid;
     int status;
-    char *cmd_path;
+    char *cmd_path = NULL;
+    int from_path = 0;
 
     if (!argv || !argv[0])
         return (0);
@@ -96,11 +102,16 @@ int execute_command(char **argv)
             fprintf(stderr, "./hsh: 1: %s: not found\n", argv[0]);
             return (127);
         }
+        from_path = 1;
     }
 
     pid = fork();
     if (pid == -1)
+    {
+        if (from_path)
+            free(cmd_path);
         return (1);
+    }
 
     if (pid == 0)
     {
@@ -109,6 +120,10 @@ int execute_command(char **argv)
     }
 
     wait(&status);
+
+    if (from_path)
+        free(cmd_path);
+
     if (WIFEXITED(status))
         return (WEXITSTATUS(status));
 
