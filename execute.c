@@ -1,5 +1,23 @@
 #include "shell.h"
 
+char *trim_spaces(char *str)
+{
+    char *end;
+
+    while (*str == ' ' || *str == '\t')
+        str++;
+
+    if (*str == '\0')
+        return (str);
+
+    end = str + strlen(str) - 1;
+    while (end > str && (*end == ' ' || *end == '\t'))
+        end--;
+
+    *(end + 1) = '\0';
+    return (str);
+}
+
 char *get_path(void)
 {
     int i = 0;
@@ -16,26 +34,25 @@ char *get_path(void)
 char *find_command(char *cmd)
 {
     char *path, *path_copy, *dir, *full_path;
-    struct stat st;
 
     path = get_path();
-    if (!path)
+    if (!path || path[0] == '\0')
         return (NULL);
 
     path_copy = strdup(path);
-    dir = strtok(path_copy, ":");
+    if (!path_copy)
+        return (NULL);
 
+    dir = strtok(path_copy, ":");
     while (dir)
     {
         full_path = malloc(strlen(dir) + strlen(cmd) + 2);
         if (!full_path)
             return (NULL);
 
-        strcpy(full_path, dir);
-        strcat(full_path, "/");
-        strcat(full_path, cmd);
+        sprintf(full_path, "%s/%s", dir, cmd);
 
-        if (stat(full_path, &st) == 0 && (st.st_mode & S_IXUSR))
+        if (access(full_path, X_OK) == 0)
         {
             free(path_copy);
             return (full_path);
@@ -51,17 +68,20 @@ char *find_command(char *cmd)
 
 int execute_command(char **argv)
 {
-    pid_t child_pid;
+    pid_t pid;
     int status;
     char *cmd_path;
-    struct stat st;
 
-    if (argv[0] == NULL)
+    if (!argv || !argv[0])
+        return (0);
+
+    argv[0] = trim_spaces(argv[0]);
+    if (argv[0][0] == '\0')
         return (0);
 
     if (strchr(argv[0], '/'))
     {
-        if (stat(argv[0], &st) != 0)
+        if (access(argv[0], X_OK) != 0)
         {
             fprintf(stderr, "./hsh: 1: %s: not found\n", argv[0]);
             return (127);
@@ -78,21 +98,19 @@ int execute_command(char **argv)
         }
     }
 
-    child_pid = fork();
-    if (child_pid == -1)
+    pid = fork();
+    if (pid == -1)
         return (1);
 
-    if (child_pid == 0)
+    if (pid == 0)
     {
         execve(cmd_path, argv, environ);
         exit(127);
     }
-    else
-    {
-        wait(&status);
-        if (WIFEXITED(status))
-            return (WEXITSTATUS(status));
-    }
+
+    wait(&status);
+    if (WIFEXITED(status))
+        return (WEXITSTATUS(status));
 
     return (0);
 }
