@@ -7,11 +7,15 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 extern char **environ;
 
-/* Prototypes */
 void tokenize(char *buffer, char **argv);
 int execute_command(char **argv);
 
-#endif/*SHELL_H*/
+char *get_path(void);
+char *find_command(char *cmd);
+
+#endif /* SHELL_H */
+
