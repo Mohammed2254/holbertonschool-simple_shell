@@ -1,10 +1,29 @@
-.TH hsh 1
+.TH HSH 1
 .SH NAME
-hsh \- simple shell
+hsh \- simple UNIX command interpreter
+
 .SH SYNOPSIS
-hsh
+.B hsh
+.RI [ command ]
+
 .SH DESCRIPTION
-A simple UNIX command interpreter written in C.
+hsh is a simple UNIX shell written in C.
+It reads commands from standard input and executes them using system calls.
+
+The shell works in both interactive and non-interactive modes.
+
+.SH BUILTINS
+.TP
+.B exit
+Exit the shell.
+
+.TP
+.B env
+Print the current environment variables.
+
+.SH EXIT STATUS
+The shell returns the exit status of the last executed command.
+
 .SH AUTHORS
-Alenzi Fawaz Fahad
+Fahad Fawaz Alenzi
 Mohammed Abdullah Alabdali
